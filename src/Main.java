@@ -1,36 +1,24 @@
 public class Main {
-    static String[][] board;
-    static int queensOnBoard = 0;
-
     public static void main(String[] args) {
-        createBoard();
-        while (queensOnBoard < 8) {
-            solve();
-            drawBoard();
-        }
-
+        setQueensOnRows();
+        setQueensOnBoard(0, newBoard(8, 8));
     }
 
-    public static void solve() {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (canSet(i, j)) {
-                    setQueen(i, j);
-                }
-            }
-        }
-    }
+    private static Queen[] queens = new Queen[8];
 
-    public static void createBoard() {
-        board = new String[8][8];
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
+    //Creating a board
+    public static String[][] newBoard(int rows, int cols) {
+        String[][] board = new String[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
                 board[i][j] = " ";
             }
         }
+        return board;
     }
 
-    public static void drawBoard() {
+    //Print out the board
+    public static void drawBoard(String[][] board) {
         for (int i = 0; i < board.length; i++) {
             System.out.print("|");
             for (int j = 0; j < board[i].length; j++) {
@@ -41,47 +29,44 @@ public class Main {
         System.out.println("");
     }
 
-    public static void setQueen(int row, int col) {
-
-        //fill col
-        for (int i = 0; i < board.length; i++) {
-            board[i][col] = ".";
+    //Assigning one queen to each row
+    public static void setQueensOnRows() {
+        for (int i = 0; i < 8; i++) {
+            queens[i] = new Queen();
+            queens[i].row = i;
         }
-        //fill row
-        for (int i = 0; i < board.length; i++) {
-            board[row][i] = ".";
-        }
-        //fill diagonals
-        int dRow1 = row;
-        int dCol1 = col;
-        int dRow2 = row;
-        int dCol2 = col;
-        int dRow3 = row;
-        int dCol3 = col;
-        int dRow4 = row;
-        int dCol4 = col;
-        while (dRow1 < 7 && dCol1 < 7) {
-            board[++dRow1][++dCol1] = ".";
-        }
-        while (dRow2 > 0 && dCol2 > 0) {
-            board[--dRow2][--dCol2] = ".";
-        }
-        while (dRow3 > 0 && dCol3 < 7) {
-            board[--dRow3][++dCol3] = ".";
-
-        }
-        while (dRow4 < 7 && dCol4 > 0) {
-            board[++dRow4][--dCol4] = ".";
-        }
-
-        board[row][col] = "Q";
-        queensOnBoard++;
     }
 
-    public static Boolean canSet(int row, int col) {
-        if ((board[row][col]).equals("Q") | (board[row][col]).equals(".")) {
-            return false;
+    //Checking if two queens are attacking each other
+    public static Boolean isAttacking(Queen a, Queen b) {
+        return a.row == b.row || a.col == b.col ||
+                Math.abs(a.row - b.row) == Math.abs(a.col - b.col);
+    }
+
+    //Checking if the square is safe
+    public static boolean isSafe(Queen[] square) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = i + 1; j < 8; j++) {
+                if (isAttacking(square[i], square[j])) {
+                    return false;
+                }
+            }
         }
         return true;
+    }
+
+    public static String[][] setQueensOnBoard(int row, String[][] board) {
+        for (int i = 0; i < 8; i++) {
+            queens[row].col = i;
+            if (row < 7) {
+                setQueensOnBoard(row + 1, board);
+            } else {
+                if (isSafe(queens)) {
+                    board[row][queens[row].col] = "Q";
+                    drawBoard(board);
+                }
+            }
+        }
+        return board;
     }
 }

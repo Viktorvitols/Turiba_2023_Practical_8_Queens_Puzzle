@@ -1,17 +1,62 @@
 public class Main {
-    public static void main(String[] args) {
-        setQueensOnRows();
-        setQueensOnBoard(0, newBoard(8, 8));
-    }
-
     private static Queen[] queens = new Queen[8];
 
+    public static void main(String[] args) {
+        setQueensOnRows();
+        setUpQueens(0);
+    }
+
+    //Checking if two queens are attacking each other
+    public static Boolean isAttacking(Queen a, Queen b) {
+        return a.row == b.row || a.col == b.col ||
+                Math.abs(a.row - b.row) == Math.abs(a.col - b.col);
+    }
+
+    //Assigning one queen to each row
+    public static void setQueensOnRows() {
+        for (int i = 0; i < 8; i++) {
+            queens[i] = new Queen();
+            queens[i].row = i;
+        }
+    }
+
+    //Checking if the position on board is safe
+    public static boolean isSafe(Queen[] position) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = i + 1; j < 8; j++) {
+                if (isAttacking(position[i], position[j])) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    //Setting up one queen on each column and print all possibilities.
+    public static int count = 1;
+    public static void setUpQueens(int row) {
+        for (int i = 0; i < 8; i++) {
+            queens[row].col = i;
+            if (row < 7) {
+                setUpQueens(row + 1);
+            } else {
+                if (isSafe(queens)) {
+                    System.out.println("Position number: " + count);
+                    drawBoard(doBoard(queens));
+                    count++;
+                }
+            }
+        }
+    }
+
     //Creating a board
-    public static String[][] newBoard(int rows, int cols) {
-        String[][] board = new String[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                board[i][j] = " ";
+    public static String[][] doBoard(Queen[] position) {
+        String[][] board = new String[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (position[j].col == i) {
+                    board[i][j] = "Q";
+                } else board[i][j] = " ";
             }
         }
         return board;
@@ -27,46 +72,5 @@ public class Main {
             System.out.println("");
         }
         System.out.println("");
-    }
-
-    //Assigning one queen to each row
-    public static void setQueensOnRows() {
-        for (int i = 0; i < 8; i++) {
-            queens[i] = new Queen();
-            queens[i].row = i;
-        }
-    }
-
-    //Checking if two queens are attacking each other
-    public static Boolean isAttacking(Queen a, Queen b) {
-        return a.row == b.row || a.col == b.col ||
-                Math.abs(a.row - b.row) == Math.abs(a.col - b.col);
-    }
-
-    //Checking if the square is safe
-    public static boolean isSafe(Queen[] square) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = i + 1; j < 8; j++) {
-                if (isAttacking(square[i], square[j])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public static String[][] setQueensOnBoard(int row, String[][] board) {
-        for (int i = 0; i < 8; i++) {
-            queens[row].col = i;
-            if (row < 7) {
-                setQueensOnBoard(row + 1, board);
-            } else {
-                if (isSafe(queens)) {
-                    board[row][queens[row].col] = "Q";
-                    drawBoard(board);
-                }
-            }
-        }
-        return board;
     }
 }
